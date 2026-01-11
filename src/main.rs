@@ -5,26 +5,31 @@ struct Config {
     filename: String,
 }
 
-fn configure(query: String, filename: String) -> Config {
-    Config { query, filename }
-}
-fn main() {
-    let mut args = env::args();
+fn build_config(mut args: env::Args) -> Result<Config, String> {
     args.next(); // skip program name
+
     let Some(query) = args.next() else {
-        println!("Error: Missing query");
-        process::exit(1);
+        return Err(String::from("Missing query"));
     };
 
     let Some(filename) = args.next() else {
-        println!("Error: Missing filename");
-        process::exit(1);
+        return Err(String::from("Missing filename"));
     };
     if args.next().is_some() {
-        println!("Error: Too many arguments");
-        process::exit(1);
+        return Err(String::from("Too many arguments"));
     }
-    let config: Config = configure(query, filename);
+    Ok(Config { query, filename })
+}
+
+fn main() {
+    let args = env::args();
+    let config: Config = match build_config(args) {
+        Ok(cfg) => cfg,
+        Err(message) => {
+            println!("{message}");
+            process::exit(1);
+        }
+    };
 
     println!("Query: {}, Filename: {}", &config.query, &config.filename);
 }
