@@ -10,23 +10,21 @@ fn configure(query: String, filename: String) -> Config {
 }
 fn main() {
     let mut args = env::args();
-    if args.len() < 3 {
-        println!("Error: Too few arguments");
-        process::exit(1);
-    } else if args.len() > 3 {
-        println!("Error: Too many arguments")
-        process::exit(1);
-    }
-    args.next();
-    
+    args.next(); // skip program name
     let Some(query) = args.next() else {
+        println!("Error: Missing query");
         process::exit(1);
     };
 
     let Some(filename) = args.next() else {
+        println!("Error: Missing filename");
         process::exit(1);
     };
-    let config : Config = configure(query, filename);
+    if args.next().is_some() {
+        println!("Error: Too many arguments");
+        process::exit(1);
+    }
+    let config: Config = configure(query, filename);
 
     println!("Query: {}, Filename: {}", &config.query, &config.filename);
 }
